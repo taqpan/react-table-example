@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 
 import { TableComponent } from './TableComponent';
-import { generatePersons } from './generatePerson';
+import { generatePersons } from './generatePersons';
 
 export const App: React.FC = () => {
   const data = React.useMemo(() => generatePersons(100), []);
@@ -10,7 +10,7 @@ export const App: React.FC = () => {
   return (
     <div>
       <Heading>Example Table</Heading>
-      <TableComponent data={data} sticky={['check', 'firstName', 'lastName', 'age', 'rating']}/>
+      <TableComponent data={data} sticky={['check', 'firstName', 'lastName', 'age']}/>
     </div>
   );
 };

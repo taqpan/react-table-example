@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Cell,
   ColumnDef,
+  Header,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -41,52 +42,43 @@ export const TableComponent: React.FC<TableProps> = (props) => {
     <Container>
       <Table>
         <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {props.sticky && (
-                <th>
-                  {headerGroup.headers
-                    .filter((r) => props.sticky?.includes(r.column.id as keyof Person) ?? false)
-                    .map((header) => (
-                      <StickyHeaderItem
+          {table
+            .getHeaderGroups()
+            .map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {props.sticky && (
+                  <th>
+                    {headerGroup.headers
+                      .filter((r) => props.sticky?.includes(r.column.id as keyof Person) ?? false)
+                      .map((header) => (
+                        <StickyHeaderItem
+                          key={header.id}
+                          {...{
+                            onClick: header.column.getToggleSortingHandler(),
+                          }}
+                        >
+                          <HeaderValue header={header}/>
+                        </StickyHeaderItem>
+                    ))}
+                  </th>
+                )}
+                {headerGroup.headers
+                  .filter((r) => !props.sticky?.includes(r.column.id as keyof Person) ?? true)
+                  .map((header) => (
+                    <th key={header.id} colSpan={header.colSpan}>
+                      <div
                         {...{
                           onClick: header.column.getToggleSortingHandler(),
                         }}
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {{
-                          asc: '🔼',
-                          desc: '🔽',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </StickyHeaderItem>
-                  ))}
-                </th>
-              )}
-              {headerGroup.headers
-                .filter((r) => !props.sticky?.includes(r.column.id as keyof Person) ?? true)
-                .map((header) => (
-                <th key={header.id} colSpan={header.colSpan}>
-                  <div
-                    {...{
-                      onClick: header.column.getToggleSortingHandler(),
-                    }}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {{
-                      asc: '🔼',
-                      desc: '🔽',
-                    }[header.column.getIsSorted() as string] ?? null}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          ))}
+                        <HeaderValue header={header}/>
+                      </div>
+                    </th>
+                  ))
+                }
+              </tr>
+            ))
+          }
         </thead>
         <tbody>
           {table
@@ -99,7 +91,7 @@ export const TableComponent: React.FC<TableProps> = (props) => {
                     {row.getVisibleCells()
                       .filter((r) => props.sticky?.includes(r.column.id as keyof Person) ?? false)
                       .map((cell) => (
-                        <StickyValueItem>
+                        <StickyValueItem key={cell.id}>
                           <CellValue cell={cell}/>
                         </StickyValueItem>
                       ))
@@ -122,6 +114,17 @@ export const TableComponent: React.FC<TableProps> = (props) => {
     </Container>
   );
 };
+
+const HeaderValue = (props: { header: Header<Person, unknown>}) => <>
+  {flexRender(
+    props.header.column.columnDef.header,
+    props.header.getContext()
+  )}
+  {{
+    asc: '🔼',
+    desc: '🔽',
+  }[props.header.column.getIsSorted() as string] ?? null}
+</>;
 
 const CellValue = (props: { cell: Cell<Person, unknown> }) => <>
   {(props.cell.column.id === 'check')
@@ -166,7 +169,7 @@ const Table = styled.table`
     cursor: pointer;
     z-index: 2;
 
-    &:first-child {
+    &:first-of-type {
       z-index: 3;
     }
   }
@@ -179,7 +182,7 @@ const Table = styled.table`
     color: #fff;
     background-color: #242424;
 
-    &:first-child {
+    &:first-of-type {
       position: sticky;
       left: 0;
       z-index: 1;
@@ -194,12 +197,12 @@ const Table = styled.table`
 
 const StickyHeaderItem = styled.span`
   display: inline-block;
-  width: 100px;
+  width: 120px;
   z-index: 3;
 `;
 
 const StickyValueItem = styled.span`
   display: inline-block;
-  width: 100px;
+  width: 120px;
   z-index: 1;
 `;
